@@ -112,10 +112,14 @@
   .vs { color: var(--dim); font-weight: 400; }
   .right { margin-left: auto; display: flex; align-items: center; gap: 0.375rem; flex-shrink: 0; }
   .chip {
-    border-radius: 0.375rem; background: var(--chip-bg);
+    display: inline-flex; align-items: center;
+    border-radius: 0.375rem; background: #fff;
+    border: 1px solid var(--border);
     padding: 0.125rem 0.375rem;
-    font-size: 0.6875rem; font-weight: 600; color: var(--dim);
   }
+  .chip img { display: block; height: 0.75rem; width: auto; }
+  /* ponytail: the Sky PNG is a padded 512px square — cover-crop the wordmark band */
+  .chip img.sky { width: 2.875rem; height: 0.875rem; object-fit: cover; }
   .time { font-size: 0.75rem; color: var(--dim); font-variant-numeric: tabular-nums; }
   .live {
     width: 0.5rem; height: 0.5rem; border-radius: 50%;
@@ -144,7 +148,7 @@
   <div class="meta"><span id="count"></span><button id="clear" hidden>Vís øll lið</button></div>
 
   <div class="tvnote">
-    <b>SKY</b> Sky Sports (UK) · <b>TNT</b> TNT Sports (UK) · <b>VIA</b> Viaplay (DK — allir dystir).
+    <b>Sky Sports</b> og <b>TNT Sports</b> (UK) · <b>Viaplay</b> (DK — allir dystir).
     Dystir leygardag kl. 15:00 verða ikki sendir beinleiðis í UK („blackout“).
     Tíðir og UK-rásir eru eftir vanligu leiklutunum og verða dagførdar, tá sjónvarpsvalini verða almannakunngjørd.
   </div>
@@ -279,8 +283,7 @@ function render() {
       '<span class="teams"><span class="tn">' + esc(TEAMS[a].n) + '</span></span>' +
       '<span class="right">' +
       (live ? '<span class="live" title="Beinleiðis nú"></span>' : "") +
-      (uk ? '<span class="chip">' + uk + "</span>" : "") +
-      '<span class="chip">VIA</span>' +
+      (uk ? chip(uk) : "") + chip("VIA") +
       '<span class="time">' + p.hour + ":" + p.minute + "</span></span>";
     card.appendChild(row);
   }
@@ -289,6 +292,20 @@ function render() {
     days.innerHTML = '<div class="card"><div class="empty">Eingir dystir funnir.</div></div>';
 
   return firstUpcoming;
+}
+
+const LOGOS = {
+  SKY: {n: "Sky Sports", cls: "sky",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Sky_Sports_Logo_2025.png/250px-Sky_Sports_Logo_2025.png"},
+  TNT: {n: "TNT Sports",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/TNT_Sports_2024_vector_logo_black.svg/250px-TNT_Sports_2024_vector_logo_black.svg.png"},
+  VIA: {n: "Viaplay",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Viaplay_logo.svg/250px-Viaplay_logo.svg.png"},
+};
+function chip(k) {
+  const l = LOGOS[k];
+  return '<span class="chip" title="' + l.n + '"><img' + (l.cls ? ' class="' + l.cls + '"' : "") +
+    ' src="' + l.src + '" alt="' + l.n + '" loading="lazy"></span>';
 }
 
 function keyOf(p) { return p.year + "-" + p.month + "-" + p.day; }
