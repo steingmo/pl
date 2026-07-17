@@ -126,6 +126,14 @@
   }
   @keyframes blink { 50% { opacity: 0.4; } }
 
+  .pastbtn {
+    display: inline-block; margin-bottom: 1rem;
+    background: var(--chip-bg); border: none; cursor: pointer;
+    border-radius: 999px; padding: 0.25rem 0.75rem;
+    font-size: 0.75rem; font-weight: 500; color: var(--label);
+  }
+  @media (min-width: 640px) { .pastbtn { margin-left: 7rem; } }
+
   .empty {
     padding: 2rem 1rem; text-align: center;
     font-size: 0.875rem; color: var(--dim);
@@ -150,6 +158,8 @@
     Dystir leygardag kl. 15:00 verða ikki sendir beinleiðis í UK („blackout“).
     Tíðir og UK-rásir eru eftir vanligu leiklutunum og verða dagførdar, tá sjónvarpsvalini verða almannakunngjørd.
   </div>
+
+  <button id="pastbtn" class="pastbtn" hidden></button>
 
   <div id="days"></div>
 
@@ -234,6 +244,9 @@ TEAMS.forEach((t, i) => {
 function save() { localStorage.setItem("pl-teams", JSON.stringify([...picked])); }
 document.getElementById("clear").onclick = () => { picked.clear(); save(); render(); };
 
+let showPast = false;
+document.getElementById("pastbtn").onclick = () => { showPast = !showPast; render(); };
+
 function render() {
   const now = Date.now();
   const todayKey = keyOf(parts(new Date()));
@@ -252,8 +265,11 @@ function render() {
   days.innerHTML = "";
   let curKey = null, card = null, firstUpcoming = null;
 
+  let pastCount = 0;
   for (const [iso, round, h, a] of shown) {
     const d = new Date(iso);
+    const done = d.getTime() + 2 * 3600e3 < now;
+    if (done) { pastCount++; if (!showPast) continue; }
     const p = parts(d);
     const k = keyOf(p);
     if (k !== curKey) {
@@ -272,7 +288,7 @@ function render() {
     }
     const ko = d.getTime();
     const row = document.createElement("div");
-    row.className = "row" + (ko + 2 * 3600e3 < now ? " past" : "");
+    row.className = "row" + (done ? " past" : "");
     const uk = ukChannel(p);
     const live = ko <= now && now < ko + 2 * 3600e3;
     row.innerHTML =
@@ -286,8 +302,12 @@ function render() {
     card.appendChild(row);
   }
 
-  if (shown.length === 0)
+  if (!days.firstElementChild)
     days.innerHTML = '<div class="card"><div class="empty">Eingir dystir funnir.</div></div>';
+
+  const pb = document.getElementById("pastbtn");
+  pb.hidden = pastCount === 0;
+  pb.textContent = showPast ? "Fjal farnar dystir" : "Vís farnar dystir (" + pastCount + ")";
 
   return firstUpcoming;
 }
