@@ -217,6 +217,11 @@ function parts(date) {
   return p; // {weekday:"Sat", day:"22", month:"8", year:"2026", hour:"15", minute:"00"}
 }
 
+// Hand-verified UK picks that beat the slot rules below.
+// Key "HOM-AWA" (team codes), value "SKY" | "TNT" | null (null = not televised in UK).
+// Each pairing occurs once per season, so the key is unique.
+const OVERRIDES = {};
+
 function ukChannel(p) {
   const t = p.hour + ":" + p.minute;
   if (p.weekday === "Sat") {
@@ -289,7 +294,8 @@ function render() {
     const ko = d.getTime();
     const row = document.createElement("div");
     row.className = "row" + (done ? " past" : "");
-    const uk = ukChannel(p);
+    const okey = TEAMS[h].c + "-" + TEAMS[a].c;
+    const uk = okey in OVERRIDES ? OVERRIDES[okey] : ukChannel(p);
     const live = ko <= now && now < ko + 2 * 3600e3;
     row.innerHTML =
       dot(h) + '<span class="teams"><span class="tn">' + esc(TEAMS[h].n) +
