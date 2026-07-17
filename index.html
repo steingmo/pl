@@ -47,11 +47,9 @@
 
   /* team strip */
   .strip {
-    display: flex; gap: 0.625rem;
-    overflow-x: auto; padding: 0.25rem 0 0.75rem;
-    scrollbar-width: none;
+    display: flex; flex-wrap: wrap; gap: 0.625rem;
+    padding: 0.25rem 0 0.75rem;
   }
-  .strip::-webkit-scrollbar { display: none; }
   .club {
     flex-shrink: 0; width: 3.25rem;
     background: none; border: none; cursor: pointer; padding: 0.25rem 0;
@@ -140,7 +138,7 @@
 <main>
   <header>
     <h1>Premier League 2026/27</h1>
-    <p class="sub">Allir 380 dystir í føroyskari tíð — við sjónvarpsyvirliti fyri Danmark og Stórabretland. Trýst á eitt lið fyri bert at síggja tess dystir.</p>
+    <p class="sub">Allir 380 dystir í føroyskari tíð — við sjónvarpsyvirliti fyri Danmark og Stórabretland. Trýst á eitt lið fyri at bara síggja títt lið.</p>
   </header>
 
   <div class="strip" id="strip"></div>
