@@ -163,7 +163,7 @@
 
   <div id="days"></div>
 
-  <footer>Dagført 17. juli 2026 · Kelda: fixturedownload.com · Tíðir kunnu flytast, tá sjónvarpsval verða almannakunngjørd.</footer>
+  <footer>Dagført 17. juli 2026 · Keldur: fixturedownload.com &amp; live-footballontv.com · Tíðir kunnu flytast, tá sjónvarpsval verða almannakunngjørd.</footer>
 </main>
 
 <script>
@@ -217,10 +217,11 @@ function parts(date) {
   return p; // {weekday:"Sat", day:"22", month:"8", year:"2026", hour:"15", minute:"00"}
 }
 
-// Hand-verified UK picks that beat the slot rules below.
-// Key "HOM-AWA" (team codes), value "SKY" | "TNT" | null (null = not televised in UK).
-// Each pairing occurs once per season, so the key is unique.
-const OVERRIDES = {};
+// UK picks scraped weekly from live-footballontv.com by update_fixtures.py;
+// they beat the slot rules below. Matches beyond the announced window fall
+// back to ukChannel(). Key "HOM-AWA" (team codes, unique per season),
+// value "SKY" | "TNT" | null (null = not televised in UK).
+const OVERRIDES = {"ARS-COV":"SKY","HUL-MUN":"TNT","BRE-TOT":"SKY","BHA-AVL":"SKY","MCI-BOU":"SKY","NEW-LIV":"SKY","FUL-CHE":"SKY","CRY-MCI":"SKY","LIV-NFO":"TNT","TOT-NEW":"SKY","CHE-BHA":"SKY","LEE-BRE":"SKY","SUN-FUL":"SKY","MUN-IPS":"SKY","AVL-ARS":"SKY","IPS-LIV":"SKY","NEW-BOU":"TNT","HUL-AVL":"SKY","EVE-MUN":"SKY","ARS-CHE":"SKY","TOT-EVE":"SKY","SUN-ARS":"TNT","COV-BHA":"SKY","MUN-MCI":"SKY","LEE-NEW":"SKY","BRE-CHE":"SKY","TOT-AVL":"TNT","NFO-COV":"SKY","BOU-LIV":"SKY","FUL-MUN":"SKY","EVE-CRY":null,"IPS-SUN":null,"NFO-LEE":null,"BOU-EVE":null,"COV-HUL":null,"BRE-SUN":null,"BHA-LEE":null,"FUL-CRY":null,"MCI-COV":null,"NFO-TOT":null,"BOU-BRE":null,"AVL-NFO":null,"CHE-HUL":null,"CRY-IPS":null,"LIV-FUL":null,"BHA-ARS":null,"EVE-IPS":null,"LEE-CRY":null,"MCI-SUN":null,"NEW-HUL":null};
 
 function ukChannel(p) {
   const t = p.hour + ":" + p.minute;
