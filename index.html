@@ -154,7 +154,7 @@
   <div class="meta"><span id="count"></span><button id="clear" hidden>Vís øll lið</button></div>
 
   <div class="tvnote">
-    <b>Sky Sports</b> og <b>TNT Sports</b> (UK) · <b>Viaplay</b> (DK — allir dystir).
+    <b>Sky Sports</b> og <b>TNT Sports</b> (UK) · <b>Viaplay</b> (DK — allir dystir, uttan leygardagsdystin kl. 12:30, sum er á <b>Prime Video</b> í DK).
     Dystir leygardag kl. 15:00 verða ikki sendir beinleiðis í UK („blackout“).
     Tíðir og UK-rásir eru eftir vanligu leiklutunum og verða dagførdar, tá sjónvarpsvalini verða almannakunngjørd.
   </div>
@@ -222,6 +222,12 @@ function parts(date) {
 // back to ukChannel(). Key "HOM-AWA" (team codes, unique per season),
 // value "SKY" | "TNT" | null (null = not televised in UK).
 const OVERRIDES = {"ARS-COV":"SKY","HUL-MUN":"TNT","BRE-TOT":"SKY","BHA-AVL":"SKY","MCI-BOU":"SKY","NEW-LIV":"SKY","FUL-CHE":"SKY","CRY-MCI":"SKY","LIV-NFO":"TNT","TOT-NEW":"SKY","CHE-BHA":"SKY","LEE-BRE":"SKY","SUN-FUL":"SKY","MUN-IPS":"SKY","AVL-ARS":"SKY","IPS-LIV":"SKY","NEW-BOU":"TNT","HUL-AVL":"SKY","EVE-MUN":"SKY","ARS-CHE":"SKY","TOT-EVE":"SKY","SUN-ARS":"TNT","COV-BHA":"SKY","MUN-MCI":"SKY","LEE-NEW":"SKY","BRE-CHE":"SKY","TOT-AVL":"TNT","NFO-COV":"SKY","BOU-LIV":"SKY","FUL-MUN":"SKY","EVE-CRY":null,"IPS-SUN":null,"NFO-LEE":null,"BOU-EVE":null,"COV-HUL":null,"BRE-SUN":null,"BHA-LEE":null,"FUL-CRY":null,"MCI-COV":null,"NFO-TOT":null,"BOU-BRE":null,"AVL-NFO":null,"CHE-HUL":null,"CRY-IPS":null,"LIV-FUL":null,"BHA-ARS":null,"EVE-IPS":null,"LEE-CRY":null,"MCI-SUN":null,"NEW-HUL":null};
+
+// DK: Prime Video has the Saturday 13:30 CET (12:30 Faroe/UK) pick, sublicensed
+// from Viaplay; Viaplay shows everything else.
+function dkChannel(p) {
+  return p.weekday === "Sat" && p.hour + ":" + p.minute === "12:30" ? "PRM" : "VIA";
+}
 
 function ukChannel(p) {
   const t = p.hour + ":" + p.minute;
@@ -304,7 +310,7 @@ function render() {
       '<span class="teams"><span class="tn">' + esc(TEAMS[a].n) + '</span></span>' +
       '<span class="right">' +
       (live ? '<span class="live" title="Beinleiðis nú"></span>' : "") +
-      (uk ? chip(uk) : "") + chip("VIA") +
+      (uk ? chip(uk) : "") + chip(dkChannel(p)) +
       '<span class="time">' + p.hour + ":" + p.minute + "</span></span>";
     card.appendChild(row);
   }
@@ -326,6 +332,8 @@ const LOGOS = {
         src: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/TNT_Sports_2024_vector_logo_black.svg/250px-TNT_Sports_2024_vector_logo_black.svg.png"},
   VIA: {n: "Viaplay",
         src: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Viaplay_logo.svg/250px-Viaplay_logo.svg.png"},
+  PRM: {n: "Prime Video",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Amazon_Prime_Video_logo.svg/250px-Amazon_Prime_Video_logo.svg.png"},
 };
 function chip(k) {
   const l = LOGOS[k];
