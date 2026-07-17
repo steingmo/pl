@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fo">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premier League 2026/27 — Dystir og Sjónvarp</title>
+<style>
+  :root {
+    --bg: #f8fafc;        /* slate-50 */
+    --card: #ffffff;
+    --border: #e2e8f0;    /* slate-200 */
+    --divide: #f1f5f9;    /* slate-100 */
+    --text: #0f172a;      /* slate-900 */
+    --dim: #94a3b8;       /* slate-400 */
+    --label: #64748b;     /* slate-500 */
+    --chip-bg: #f1f5f9;
+    --live: #dc2626;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #020617;      /* slate-950 */
+      --card: #0f172a;    /* slate-900 */
+      --border: #1e293b;  /* slate-800 */
+      --divide: #1e293b;
+      --text: #cbd5e1;    /* slate-300 */
+      --dim: #64748b;     /* slate-500 */
+      --label: #94a3b8;
+      --chip-bg: #1e293b;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main { max-width: 600px; margin: 0 auto; padding: 2.5rem 1rem; }
+
+  header { margin-bottom: 1.5rem; }
+  h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+  .sub { margin-top: 0.25rem; font-size: 0.875rem; color: var(--label); }
+
+  /* team strip */
+  .strip {
+    display: flex; gap: 0.625rem;
+    overflow-x: auto; padding: 0.25rem 0 0.75rem;
+    scrollbar-width: none;
+  }
+  .strip::-webkit-scrollbar { display: none; }
+  .club {
+    flex-shrink: 0; width: 3.25rem;
+    background: none; border: none; cursor: pointer; padding: 0.25rem 0;
+    display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+    transition: filter 0.2s, opacity 0.2s, transform 0.1s;
+  }
+  .club img { width: 2rem; height: 2rem; object-fit: contain; }
+  .club span {
+    font: 700 0.625rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--label);
+  }
+  .club:active { transform: scale(0.95); }
+  .club.muted { filter: grayscale(1); opacity: 0.35; }
+
+  .meta {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; margin-bottom: 1rem;
+    font-size: 0.75rem; color: var(--dim);
+  }
+  .meta button {
+    background: none; border: none; cursor: pointer;
+    color: var(--label); font-size: 0.75rem; font-weight: 500;
+    text-decoration: underline; text-underline-offset: 2px;
+  }
+
+  .tvnote {
+    margin-bottom: 1.5rem; padding: 0.625rem 0.875rem;
+    border: 1px solid var(--border); border-radius: 0.75rem;
+    background: var(--card);
+    font-size: 0.75rem; color: var(--label);
+  }
+  .tvnote b { font-weight: 600; }
+
+  /* day groups */
+  .day { display: flex; flex-direction: column; gap: 0.375rem; margin-bottom: 1.5rem; }
+  @media (min-width: 640px) {
+    .day { display: grid; grid-template-columns: 6rem 1fr; gap: 1rem; }
+    .daylabel { position: sticky; top: 1rem; align-self: start; padding-top: 0.5rem; }
+  }
+  .daylabel { font-size: 0.875rem; font-weight: 600; color: var(--label); }
+  .daylabel small { display: block; font-size: 0.6875rem; font-weight: 500; color: var(--dim); }
+  .day.today .daylabel { color: var(--live); }
+
+  .card {
+    min-width: 0; background: var(--card);
+    border: 1px solid var(--border); border-radius: 0.75rem;
+    overflow: hidden;
+  }
+  .row {
+    position: relative; display: flex; align-items: center; gap: 0.625rem;
+    padding: 0.625rem 0.75rem; font-size: 0.875rem;
+  }
+  .row + .row { border-top: 1px solid var(--divide); }
+  .row.past { opacity: 0.5; }
+  .dot { flex-shrink: 0; width: 0.7em; height: 0.7em; border-radius: 0.2em; box-shadow: inset 0 0 0 1px rgba(128,128,128,0.4); }
+  .teams { display: flex; align-items: center; gap: 0.4rem; min-width: 0; font-weight: 500; }
+  .teams .tn { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .vs { color: var(--dim); font-weight: 400; }
+  .right { margin-left: auto; display: flex; align-items: center; gap: 0.375rem; flex-shrink: 0; }
+  .chip {
+    border-radius: 0.375rem; background: var(--chip-bg);
+    padding: 0.125rem 0.375rem;
+    font-size: 0.6875rem; font-weight: 600; color: var(--dim);
+  }
+  .time { font-size: 0.75rem; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .live {
+    width: 0.5rem; height: 0.5rem; border-radius: 50%;
+    background: var(--live); flex-shrink: 0;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+  @keyframes blink { 50% { opacity: 0.4; } }
+
+  .empty {
+    padding: 2rem 1rem; text-align: center;
+    font-size: 0.875rem; color: var(--dim);
+  }
+
+  footer { margin-top: 3rem; font-size: 0.75rem; color: var(--dim); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Premier League 2026/27</h1>
+    <p class="sub">Allir 380 dystir í føroyskari tíð — við sjónvarpsyvirliti fyri Danmark og Stórabretland. Trýst á eitt lið fyri bert at síggja tess dystir.</p>
+  </header>
+
+  <div class="strip" id="strip"></div>
+
+  <div class="meta"><span id="count"></span><button id="clear" hidden>Vís øll lið</button></div>
+
+  <div class="tvnote">
+    <b>SKY</b> Sky Sports (UK) · <b>TNT</b> TNT Sports (UK) · <b>VIA</b> Viaplay (DK — allir dystir).
+    Dystir leygardag kl. 15:00 verða ikki sendir beinleiðis í UK („blackout“).
+    Tíðir og UK-rásir eru eftir vanligu leiklutunum og verða dagførdar, tá sjónvarpsvalini verða almannakunngjørd.
+  </div>
+
+  <div id="days"></div>
+
+  <footer>Dagført 17. juli 2026 · Kelda: fixturedownload.com · Tíðir kunnu flytast, tá sjónvarpsval verða almannakunngjørd.</footer>
+</main>
+
+<script>
+const TEAMS = [
+  {n:"Arsenal",        c:"ARS", bg:"#EF0107", fg:"#fff",    b:3},
+  {n:"Aston Villa",    c:"AVL", bg:"#670E36", fg:"#95BFE5", b:7},
+  {n:"Bournemouth",    c:"BOU", bg:"#B50E12", fg:"#fff",    b:91},
+  {n:"Brentford",      c:"BRE", bg:"#E30613", fg:"#fff",    b:94},
+  {n:"Brighton",       c:"BHA", bg:"#0057B8", fg:"#fff",    b:36},
+  {n:"Chelsea",        c:"CHE", bg:"#034694", fg:"#fff",    b:8},
+  {n:"Coventry",       c:"COV", bg:"#63B1E5", fg:"#0a1e3c",
+   b:"https://r2.thesportsdb.com/images/media/team/badge/uxyqys1424033798.png/small"},
+  {n:"Crystal Palace", c:"CRY", bg:"#1B458F", fg:"#fff",    b:31},
+  {n:"Everton",        c:"EVE", bg:"#003399", fg:"#fff",    b:11},
+  {n:"Fulham",         c:"FUL", bg:"#1a1a1a", fg:"#fff",    b:54},
+  {n:"Hull",           c:"HUL", bg:"#F18A01", fg:"#1a1a1a", b:88},
+  {n:"Ipswich",        c:"IPS", bg:"#3A64A3", fg:"#fff",    b:40},
+  {n:"Leeds",          c:"LEE", bg:"#FFCD00", fg:"#1a1a1a", b:2},
+  {n:"Liverpool",      c:"LIV", bg:"#C8102E", fg:"#fff",    b:14},
+  {n:"Man City",       c:"MCI", bg:"#6CABDD", fg:"#1c2c5b", b:43},
+  {n:"Man Utd",        c:"MUN", bg:"#DA291C", fg:"#FBE122", b:1},
+  {n:"Newcastle",      c:"NEW", bg:"#241F20", fg:"#fff",    b:4},
+  {n:"Nott'm Forest",  c:"NFO", bg:"#DD0000", fg:"#fff",    b:17},
+  {n:"Spurs",          c:"TOT", bg:"#132257", fg:"#fff",    b:6},
+  {n:"Sunderland",     c:"SUN", bg:"#EB172B", fg:"#fff",    b:56},
+];
+// ponytail: 19 crests from the official PL badge CDN; Coventry isn't on it
+// (promoted, not yet added) so it comes from TheSportsDB — swap to tXX when it appears
+function crest(t) {
+  return typeof t.b === "number"
+    ? "https://resources.premierleague.com/premierleague/badges/50/t" + t.b + "@x2.png"
+    : t.b;
+}
+
+// [isoUtc, round, homeIdx, awayIdx]
+const FIXTURES = [["2026-08-21T19:00Z",1,0,6],["2026-08-22T11:30Z",1,10,15],["2026-08-22T14:00Z",1,8,7],["2026-08-22T14:00Z",1,11,19],["2026-08-22T14:00Z",1,17,12],["2026-08-22T16:30Z",1,3,18],["2026-08-23T13:00Z",1,4,1],["2026-08-23T13:00Z",1,14,2],["2026-08-23T15:30Z",1,16,13],["2026-08-24T19:00Z",1,9,5],["2026-08-28T19:00Z",2,7,14],["2026-08-29T11:30Z",2,13,17],["2026-08-29T14:00Z",2,2,8],["2026-08-29T14:00Z",2,6,10],["2026-08-29T16:30Z",2,18,16],["2026-08-30T13:00Z",2,5,4],["2026-08-30T13:00Z",2,12,3],["2026-08-30T13:00Z",2,19,9],["2026-08-30T15:30Z",2,15,11],["2026-08-31T19:00Z",2,1,0],["2026-09-04T19:00Z",3,11,13],["2026-09-05T11:30Z",3,16,2],["2026-09-05T14:00Z",3,3,19],["2026-09-05T14:00Z",3,4,12],["2026-09-05T14:00Z",3,9,7],["2026-09-05T14:00Z",3,14,6],["2026-09-05T14:00Z",3,17,18],["2026-09-05T16:30Z",3,10,1],["2026-09-06T13:00Z",3,8,15],["2026-09-06T15:30Z",3,0,5],["2026-09-12T14:00Z",4,2,3],["2026-09-12T14:00Z",4,1,17],["2026-09-12T14:00Z",4,5,10],["2026-09-12T14:00Z",4,7,11],["2026-09-12T14:00Z",4,13,9],["2026-09-12T16:30Z",4,18,8],["2026-09-12T19:00Z",4,19,0],["2026-09-13T13:00Z",4,6,4],["2026-09-13T15:30Z",4,15,14],["2026-09-14T19:00Z",4,12,16],["2026-09-18T19:00Z",5,3,5],["2026-09-19T11:30Z",5,18,1],["2026-09-19T14:00Z",5,4,0],["2026-09-19T14:00Z",5,8,11],["2026-09-19T14:00Z",5,12,7],["2026-09-19T14:00Z",5,14,19],["2026-09-19T14:00Z",5,16,10],["2026-09-19T16:30Z",5,17,6],["2026-09-20T13:00Z",5,2,13],["2026-09-20T15:30Z",5,9,15],["2026-10-10T14:00Z",6,0,12],["2026-10-10T14:00Z",6,1,3],["2026-10-10T14:00Z",6,5,2],["2026-10-10T14:00Z",6,6,16],["2026-10-10T14:00Z",6,7,17],["2026-10-10T14:00Z",6,10,8],["2026-10-10T14:00Z",6,11,9],["2026-10-10T14:00Z",6,13,14],["2026-10-10T14:00Z",6,15,18],["2026-10-10T14:00Z",6,19,4],["2026-10-17T14:00Z",7,2,19],["2026-10-17T14:00Z",7,3,13],["2026-10-17T14:00Z",7,4,7],["2026-10-17T14:00Z",7,8,5],["2026-10-17T14:00Z",7,9,10],["2026-10-17T14:00Z",7,12,15],["2026-10-17T14:00Z",7,14,11],["2026-10-17T14:00Z",7,16,1],["2026-10-17T14:00Z",7,17,0],["2026-10-17T14:00Z",7,18,6],["2026-10-24T14:00Z",8,0,8],["2026-10-24T14:00Z",8,1,14],["2026-10-24T14:00Z",8,5,18],["2026-10-24T14:00Z",8,6,9],["2026-10-24T14:00Z",8,7,16],["2026-10-24T14:00Z",8,10,3],["2026-10-24T14:00Z",8,11,17],["2026-10-24T14:00Z",8,13,4],["2026-10-24T14:00Z",8,15,2],["2026-10-24T14:00Z",8,19,12],["2026-10-31T15:00Z",9,2,12],["2026-10-31T15:00Z",9,1,9],["2026-10-31T15:00Z",9,3,17],["2026-10-31T15:00Z",9,5,15],["2026-10-31T15:00Z",9,6,19],["2026-10-31T15:00Z",9,10,11],["2026-10-31T15:00Z",9,13,0],["2026-10-31T15:00Z",9,14,4],["2026-10-31T15:00Z",9,16,8],["2026-10-31T15:00Z",9,18,7],["2026-11-07T15:00Z",10,0,10],["2026-11-07T15:00Z",10,4,3],["2026-11-07T15:00Z",10,7,13],["2026-11-07T15:00Z",10,8,6],["2026-11-07T15:00Z",10,9,16],["2026-11-07T15:00Z",10,11,2],["2026-11-07T15:00Z",10,12,18],["2026-11-07T15:00Z",10,15,1],["2026-11-07T15:00Z",10,17,14],["2026-11-07T15:00Z",10,19,5],["2026-11-21T15:00Z",11,2,17],["2026-11-21T15:00Z",11,1,19],["2026-11-21T15:00Z",11,3,8],["2026-11-21T15:00Z",11,5,12],["2026-11-21T15:00Z",11,6,7],["2026-11-21T15:00Z",11,10,4],["2026-11-21T15:00Z",11,13,15],["2026-11-21T15:00Z",11,14,9],["2026-11-21T15:00Z",11,16,0],["2026-11-21T15:00Z",11,18,11],["2026-11-28T15:00Z",12,0,14],["2026-11-28T15:00Z",12,4,16],["2026-11-28T15:00Z",12,7,10],["2026-11-28T15:00Z",12,8,13],["2026-11-28T15:00Z",12,9,2],["2026-11-28T15:00Z",12,11,1],["2026-11-28T15:00Z",12,12,6],["2026-11-28T15:00Z",12,15,3],["2026-11-28T15:00Z",12,17,5],["2026-11-28T15:00Z",12,19,18],["2026-12-02T20:00Z",13,2,4],["2026-12-02T20:00Z",13,1,8],["2026-12-02T20:00Z",13,3,0],["2026-12-02T20:00Z",13,5,7],["2026-12-02T20:00Z",13,6,11],["2026-12-02T20:00Z",13,10,17],["2026-12-02T20:00Z",13,13,19],["2026-12-02T20:00Z",13,14,12],["2026-12-02T20:00Z",13,16,15],["2026-12-02T20:00Z",13,18,9],["2026-12-05T15:00Z",14,2,10],["2026-12-05T15:00Z",14,1,7],["2026-12-05T15:00Z",14,3,14],["2026-12-05T15:00Z",14,5,13],["2026-12-05T15:00Z",14,8,9],["2026-12-05T15:00Z",14,12,11],["2026-12-05T15:00Z",14,15,6],["2026-12-05T15:00Z",14,16,19],["2026-12-05T15:00Z",14,17,4],["2026-12-05T15:00Z",14,18,0],["2026-12-12T15:00Z",15,0,2],["2026-12-12T15:00Z",15,4,8],["2026-12-12T15:00Z",15,6,1],["2026-12-12T15:00Z",15,7,15],["2026-12-12T15:00Z",15,9,3],["2026-12-12T15:00Z",15,10,18],["2026-12-12T15:00Z",15,11,16],["2026-12-12T15:00Z",15,13,12],["2026-12-12T15:00Z",15,14,5],["2026-12-12T15:00Z",15,19,17],["2026-12-19T15:00Z",16,2,6],["2026-12-19T15:00Z",16,0,15],["2026-12-19T15:00Z",16,3,16],["2026-12-19T15:00Z",16,4,11],["2026-12-19T15:00Z",16,5,1],["2026-12-19T15:00Z",16,12,9],["2026-12-19T15:00Z",16,13,18],["2026-12-19T15:00Z",16,14,10],["2026-12-19T15:00Z",16,17,8],["2026-12-19T15:00Z",16,19,7],["2026-12-26T15:00Z",17,1,12],["2026-12-26T15:00Z",17,6,5],["2026-12-26T15:00Z",17,7,0],["2026-12-26T15:00Z",17,8,19],["2026-12-26T15:00Z",17,9,4],["2026-12-26T15:00Z",17,10,13],["2026-12-26T15:00Z",17,11,3],["2026-12-26T15:00Z",17,15,17],["2026-12-26T15:00Z",17,16,14],["2026-12-26T15:00Z",17,18,2],["2026-12-30T20:00Z",18,1,13],["2026-12-30T20:00Z",18,6,3],["2026-12-30T20:00Z",18,7,2],["2026-12-30T20:00Z",18,8,14],["2026-12-30T20:00Z",18,9,0],["2026-12-30T20:00Z",18,10,12],["2026-12-30T20:00Z",18,11,5],["2026-12-30T20:00Z",18,15,19],["2026-12-30T20:00Z",18,16,17],["2026-12-30T20:00Z",18,18,4],["2027-01-02T15:00Z",19,2,1],["2027-01-02T15:00Z",19,0,11],["2027-01-02T15:00Z",19,3,7],["2027-01-02T15:00Z",19,4,15],["2027-01-02T15:00Z",19,5,16],["2027-01-02T15:00Z",19,12,8],["2027-01-02T15:00Z",19,13,6],["2027-01-02T15:00Z",19,14,18],["2027-01-02T15:00Z",19,17,9],["2027-01-02T15:00Z",19,19,10],["2027-01-06T20:00Z",20,0,3],["2027-01-06T20:00Z",20,4,2],["2027-01-06T20:00Z",20,7,5],["2027-01-06T20:00Z",20,8,1],["2027-01-06T20:00Z",20,9,18],["2027-01-06T20:00Z",20,11,6],["2027-01-06T20:00Z",20,12,14],["2027-01-06T20:00Z",20,15,16],["2027-01-06T20:00Z",20,17,10],["2027-01-06T20:00Z",20,19,13],["2027-01-16T15:00Z",21,2,11],["2027-01-16T15:00Z",21,1,15],["2027-01-16T15:00Z",21,3,4],["2027-01-16T15:00Z",21,5,19],["2027-01-16T15:00Z",21,6,8],["2027-01-16T15:00Z",21,10,0],["2027-01-16T15:00Z",21,13,7],["2027-01-16T15:00Z",21,14,17],["2027-01-16T15:00Z",21,16,9],["2027-01-16T15:00Z",21,18,12],["2027-01-23T15:00Z",22,0,16],["2027-01-23T15:00Z",22,4,14],["2027-01-23T15:00Z",22,7,18],["2027-01-23T15:00Z",22,8,3],["2027-01-23T15:00Z",22,9,1],["2027-01-23T15:00Z",22,11,10],["2027-01-23T15:00Z",22,12,5],["2027-01-23T15:00Z",22,15,13],["2027-01-23T15:00Z",22,17,2],["2027-01-23T15:00Z",22,19,6],["2027-01-30T15:00Z",23,2,9],["2027-01-30T15:00Z",23,1,11],["2027-01-30T15:00Z",23,3,15],["2027-01-30T15:00Z",23,5,17],["2027-01-30T15:00Z",23,6,12],["2027-01-30T15:00Z",23,10,7],["2027-01-30T15:00Z",23,13,8],["2027-01-30T15:00Z",23,14,0],["2027-01-30T15:00Z",23,16,4],["2027-01-30T15:00Z",23,18,19],["2027-02-06T15:00Z",24,0,13],["2027-02-06T15:00Z",24,4,10],["2027-02-06T15:00Z",24,7,6],["2027-02-06T15:00Z",24,8,16],["2027-02-06T15:00Z",24,9,14],["2027-02-06T15:00Z",24,11,18],["2027-02-06T15:00Z",24,12,2],["2027-02-06T15:00Z",24,15,5],["2027-02-06T15:00Z",24,17,3],["2027-02-06T15:00Z",24,19,1],["2027-02-10T20:00Z",25,1,2],["2027-02-10T20:00Z",25,6,13],["2027-02-10T20:00Z",25,7,3],["2027-02-10T20:00Z",25,8,12],["2027-02-10T20:00Z",25,9,17],["2027-02-10T20:00Z",25,10,19],["2027-02-10T20:00Z",25,11,0],["2027-02-10T20:00Z",25,15,4],["2027-02-10T20:00Z",25,16,5],["2027-02-10T20:00Z",25,18,14],["2027-02-20T15:00Z",26,2,7],["2027-02-20T15:00Z",26,0,9],["2027-02-20T15:00Z",26,3,6],["2027-02-20T15:00Z",26,4,18],["2027-02-20T15:00Z",26,5,11],["2027-02-20T15:00Z",26,12,1],["2027-02-20T15:00Z",26,13,10],["2027-02-20T15:00Z",26,14,16],["2027-02-20T15:00Z",26,17,15],["2027-02-20T15:00Z",26,19,8],["2027-02-27T15:00Z",27,1,5],["2027-02-27T15:00Z",27,6,2],["2027-02-27T15:00Z",27,7,19],["2027-02-27T15:00Z",27,8,17],["2027-02-27T15:00Z",27,9,12],["2027-02-27T15:00Z",27,10,14],["2027-02-27T15:00Z",27,11,4],["2027-02-27T15:00Z",27,15,0],["2027-02-27T15:00Z",27,16,3],["2027-02-27T15:00Z",27,18,13],["2027-03-03T20:00Z",28,2,18],["2027-03-03T20:00Z",28,0,7],["2027-03-03T20:00Z",28,3,11],["2027-03-03T20:00Z",28,4,9],["2027-03-03T20:00Z",28,5,6],["2027-03-03T20:00Z",28,12,10],["2027-03-03T20:00Z",28,13,1],["2027-03-03T20:00Z",28,14,8],["2027-03-03T20:00Z",28,17,16],["2027-03-03T20:00Z",28,19,15],["2027-03-13T15:00Z",29,2,16],["2027-03-13T15:00Z",29,1,10],["2027-03-13T15:00Z",29,5,0],["2027-03-13T15:00Z",29,6,14],["2027-03-13T15:00Z",29,7,9],["2027-03-13T15:00Z",29,12,4],["2027-03-13T15:00Z",29,13,11],["2027-03-13T15:00Z",29,15,8],["2027-03-13T15:00Z",29,19,3],["2027-03-13T15:00Z",29,18,17],["2027-03-20T15:00Z",30,0,19],["2027-03-20T15:00Z",30,3,2],["2027-03-20T15:00Z",30,4,6],["2027-03-20T15:00Z",30,8,18],["2027-03-20T15:00Z",30,9,13],["2027-03-20T15:00Z",30,10,5],["2027-03-20T15:00Z",30,11,7],["2027-03-20T15:00Z",30,14,15],["2027-03-20T15:00Z",30,16,12],["2027-03-20T15:00Z",30,17,1],["2027-04-10T14:00Z",31,2,14],["2027-04-10T14:00Z",31,1,4],["2027-04-10T14:00Z",31,5,9],["2027-04-10T14:00Z",31,6,0],["2027-04-10T14:00Z",31,7,8],["2027-04-10T14:00Z",31,12,17],["2027-04-10T14:00Z",31,13,16],["2027-04-10T14:00Z",31,15,10],["2027-04-10T14:00Z",31,19,11],["2027-04-10T14:00Z",31,18,3],["2027-04-17T14:00Z",32,0,1],["2027-04-17T14:00Z",32,3,12],["2027-04-17T14:00Z",32,4,5],["2027-04-17T14:00Z",32,8,2],["2027-04-17T14:00Z",32,9,19],["2027-04-17T14:00Z",32,10,6],["2027-04-17T14:00Z",32,11,15],["2027-04-17T14:00Z",32,14,7],["2027-04-17T14:00Z",32,16,18],["2027-04-17T14:00Z",32,17,13],["2027-04-24T14:00Z",33,2,0],["2027-04-24T14:00Z",33,1,6],["2027-04-24T14:00Z",33,3,9],["2027-04-24T14:00Z",33,5,14],["2027-04-24T14:00Z",33,8,4],["2027-04-24T14:00Z",33,12,13],["2027-04-24T14:00Z",33,15,7],["2027-04-24T14:00Z",33,16,11],["2027-04-24T14:00Z",33,17,19],["2027-04-24T14:00Z",33,18,10],["2027-05-01T14:00Z",34,0,18],["2027-05-01T14:00Z",34,4,17],["2027-05-01T14:00Z",34,6,15],["2027-05-01T14:00Z",34,7,1],["2027-05-01T14:00Z",34,9,8],["2027-05-01T14:00Z",34,10,2],["2027-05-01T14:00Z",34,11,12],["2027-05-01T14:00Z",34,13,5],["2027-05-01T14:00Z",34,14,3],["2027-05-01T14:00Z",34,19,16],["2027-05-08T14:00Z",35,2,15],["2027-05-08T14:00Z",35,3,1],["2027-05-08T14:00Z",35,4,19],["2027-05-08T14:00Z",35,8,10],["2027-05-08T14:00Z",35,9,11],["2027-05-08T14:00Z",35,12,0],["2027-05-08T14:00Z",35,14,13],["2027-05-08T14:00Z",35,16,6],["2027-05-08T14:00Z",35,17,7],["2027-05-08T14:00Z",35,18,5],["2027-05-15T14:00Z",36,0,17],["2027-05-15T14:00Z",36,1,16],["2027-05-15T14:00Z",36,5,8],["2027-05-15T14:00Z",36,6,18],["2027-05-15T14:00Z",36,7,4],["2027-05-15T14:00Z",36,10,9],["2027-05-15T14:00Z",36,11,14],["2027-05-15T14:00Z",36,13,3],["2027-05-15T14:00Z",36,15,12],["2027-05-15T14:00Z",36,19,2],["2027-05-23T14:00Z",37,2,5],["2027-05-23T14:00Z",37,3,10],["2027-05-23T14:00Z",37,4,13],["2027-05-23T14:00Z",37,8,0],["2027-05-23T14:00Z",37,9,6],["2027-05-23T14:00Z",37,12,19],["2027-05-23T14:00Z",37,14,1],["2027-05-23T14:00Z",37,16,7],["2027-05-23T14:00Z",37,17,11],["2027-05-23T14:00Z",37,18,15],["2027-05-30T15:00Z",38,0,4],["2027-05-30T15:00Z",38,1,18],["2027-05-30T15:00Z",38,5,3],["2027-05-30T15:00Z",38,6,17],["2027-05-30T15:00Z",38,7,12],["2027-05-30T15:00Z",38,10,16],["2027-05-30T15:00Z",38,11,8],["2027-05-30T15:00Z",38,13,2],["2027-05-30T15:00Z",38,15,9],["2027-05-30T15:00Z",38,19,14]];
+
+const DAYS_FO = {Mon:"mán",Tue:"týs",Wed:"mik",Thu:"hós",Fri:"frí",Sat:"ley",Sun:"sun"};
+const MONTHS_FO = ["jan","feb","mar","apr","mai","jun","jul","aug","sep","okt","nov","des"];
+
+// Faroe wall clock == UK wall clock (WET/WEST == GMT/BST), so one formatter serves
+// both display time and the UK broadcast-slot rules.
+const fmt = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Atlantic/Faroe", weekday: "short",
+  year: "numeric", month: "numeric", day: "numeric",
+  hour: "2-digit", minute: "2-digit", hour12: false,
+});
+function parts(date) {
+  const p = {};
+  for (const {type, value} of fmt.formatToParts(date)) p[type] = value;
+  return p; // {weekday:"Sat", day:"22", month:"8", year:"2026", hour:"15", minute:"00"}
+}
+
+function ukChannel(p) {
+  const t = p.hour + ":" + p.minute;
+  if (p.weekday === "Sat") {
+    if (t === "12:30") return "TNT";
+    if (t === "15:00") return null; // blackout
+    return "SKY";
+  }
+  if (["Tue", "Wed", "Thu"].includes(p.weekday)) return "TNT"; // midweek rounds
+  return "SKY";
+}
+
+const stored = JSON.parse(localStorage.getItem("pl-teams") || "[]");
+const picked = new Set(stored.filter(i => i >= 0 && i < TEAMS.length));
+
+const strip = document.getElementById("strip");
+TEAMS.forEach((t, i) => {
+  const b = document.createElement("button");
+  b.className = "club";
+  b.title = t.n;
+  b.innerHTML = '<img src="' + crest(t) + '" alt="" loading="lazy"><span>' + t.c + "</span>";
+  b.onclick = () => { picked.has(i) ? picked.delete(i) : picked.add(i); save(); render(); };
+  strip.appendChild(b);
+});
+
+function save() { localStorage.setItem("pl-teams", JSON.stringify([...picked])); }
+document.getElementById("clear").onclick = () => { picked.clear(); save(); render(); };
+
+function render() {
+  const now = Date.now();
+  const todayKey = keyOf(parts(new Date()));
+  strip.querySelectorAll(".club").forEach((b, i) =>
+    b.classList.toggle("muted", picked.size > 0 && !picked.has(i)));
+  document.getElementById("clear").hidden = picked.size === 0;
+
+  const shown = FIXTURES.filter(([,, h, a]) =>
+    picked.size === 0 || picked.has(h) || picked.has(a));
+
+  document.getElementById("count").textContent = picked.size === 0
+    ? "380 dystir · 38 umfør"
+    : shown.length + " dystir · " + [...picked].map(i => TEAMS[i].n).join(", ");
+
+  const days = document.getElementById("days");
+  days.innerHTML = "";
+  let curKey = null, card = null, firstUpcoming = null;
+
+  for (const [iso, round, h, a] of shown) {
+    const d = new Date(iso);
+    const p = parts(d);
+    const k = keyOf(p);
+    if (k !== curKey) {
+      curKey = k;
+      const day = document.createElement("div");
+      day.className = "day" + (k === todayKey ? " today" : "");
+      const label = document.createElement("div");
+      label.className = "daylabel";
+      label.innerHTML = (k === todayKey ? "Í dag" : DAYS_FO[p.weekday] + " " + p.day + ". " + MONTHS_FO[p.month - 1])
+        + "<small>" + round + ". umfar</small>";
+      card = document.createElement("div");
+      card.className = "card";
+      day.append(label, card);
+      days.appendChild(day);
+      if (!firstUpcoming && d.getTime() > now - 3 * 3600e3) firstUpcoming = day;
+    }
+    const ko = d.getTime();
+    const row = document.createElement("div");
+    row.className = "row" + (ko + 2 * 3600e3 < now ? " past" : "");
+    const uk = ukChannel(p);
+    const live = ko <= now && now < ko + 2 * 3600e3;
+    row.innerHTML =
+      dot(h) + '<span class="teams"><span class="tn">' + esc(TEAMS[h].n) +
+      '</span><span class="vs">–</span></span>' + dot(a) +
+      '<span class="teams"><span class="tn">' + esc(TEAMS[a].n) + '</span></span>' +
+      '<span class="right">' +
+      (live ? '<span class="live" title="Beinleiðis nú"></span>' : "") +
+      (uk ? '<span class="chip">' + uk + "</span>" : "") +
+      '<span class="chip">VIA</span>' +
+      '<span class="time">' + p.hour + ":" + p.minute + "</span></span>";
+    card.appendChild(row);
+  }
+
+  if (shown.length === 0)
+    days.innerHTML = '<div class="card"><div class="empty">Eingir dystir funnir.</div></div>';
+
+  return firstUpcoming;
+}
+
+function keyOf(p) { return p.year + "-" + p.month + "-" + p.day; }
+function dot(i) { return '<span class="dot" style="background:' + TEAMS[i].bg + '"></span>'; }
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/'/g, "&#39;"); }
+
+const target = render();
+if (target && target !== document.getElementById("days").firstElementChild)
+  target.scrollIntoView({block: "start"});
+</script>
+</body>
+</html>
