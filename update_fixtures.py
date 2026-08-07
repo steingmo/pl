@@ -37,9 +37,9 @@ for m in sorted(feed, key=lambda m: (m['DateUtc'], m['MatchNumber'])):
 
 fixtures_js = json.dumps(rows, separators=(',', ':'))
 html = open('index.html').read()
-new = re.sub(r'const FIXTURES = \[\[.*?\]\];',
-             'const FIXTURES = ' + fixtures_js + ';', html, count=1)
-assert 'const FIXTURES = [[' in new, "FIXTURES line not found in index.html"
+new, n = re.subn(r'const FIXTURES = \[\[.*?\]\];',
+                 'const FIXTURES = ' + fixtures_js + ';', html, count=1)
+assert n == 1, "FIXTURES line not found in index.html"
 
 # --- UK TV picks -> OVERRIDES ---------------------------------------------
 TV_URL = "https://www.live-footballontv.com/live-premier-league-football-on-tv.html"
@@ -83,10 +83,10 @@ for iso, _, h, a in rows:
     if min(dates) <= d <= max(dates) and okey not in overrides:
         overrides[okey] = None
 
-new = re.sub(r'const OVERRIDES = \{.*?\};',
-             'const OVERRIDES = ' + json.dumps(overrides, separators=(',', ':')) + ';',
-             new, count=1, flags=re.S)
-assert 'const OVERRIDES = {' in new, "OVERRIDES line not found in index.html"
+new, n = re.subn(r'const OVERRIDES = \{.*?\};',
+                 'const OVERRIDES = ' + json.dumps(overrides, separators=(',', ':')) + ';',
+                 new, count=1, flags=re.S)
+assert n == 1, "OVERRIDES line not found in index.html"
 
 if new == html:
     print("no changes")
