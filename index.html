@@ -224,8 +224,11 @@ function parts(date) {
 const OVERRIDES = {"TOT-EVE":"SKY","SUN-ARS":"TNT","COV-BHA":"SKY","MUN-MCI":"SKY","LEE-NEW":"SKY","BRE-CHE":"SKY","TOT-AVL":"TNT","NFO-COV":"SKY","BOU-LIV":"SKY","MCI-SUN":"SKY","FUL-MUN":"SKY","ARS-LEE":"TNT","MUN-TOT":"SKY","CRY-NFO":"SKY","HUL-EVE":"SKY","LIV-MCI":"SKY","COV-NEW":"SKY","EVE-CHE":"TNT","NEW-AVL":"SKY","BOU-SUN":"SKY","BHA-CRY":"SKY","LEE-MUN":"SKY","NFO-ARS":"SKY","TOT-COV":"SKY","IPS-NFO":"SKY","AVL-MCI":"TNT","CHE-TOT":"SKY","CRY-NEW":"SKY","HUL-BRE":"SKY","LIV-BHA":"SKY","MUN-BOU":"SKY","SUN-LEE":"SKY","CHE-MUN":"TNT","TOT-CRY":"SKY","AVL-FUL":"SKY","LIV-ARS":"SKY","NEW-EVE":"SKY","BOU-BRE":null,"AVL-NFO":null,"CHE-HUL":null,"CRY-IPS":null,"LIV-FUL":null,"BHA-ARS":null,"EVE-IPS":null,"NEW-HUL":null,"LEE-CRY":null,"AVL-BRE":null,"CHE-BOU":null,"IPS-FUL":null,"SUN-BHA":null,"BRE-LIV":null,"FUL-HUL":null,"MCI-IPS":null,"ARS-EVE":null,"COV-FUL":null,"BOU-LEE":null,"BRE-NFO":null,"COV-SUN":null,"HUL-IPS":null,"MCI-BHA":null};
 
 // DK: Prime Video has the Saturday 13:30 CET (12:30 Faroe/UK) pick, sublicensed
-// from Viaplay; Viaplay shows everything else.
-function dkChannel(p) {
+// from Viaplay; Viaplay shows everything else. Hand-kept exceptions go in
+// DK_OVERRIDES (same "HOM-AWA" keys as OVERRIDES, value "PRM" | "VIA").
+const DK_OVERRIDES = {"SUN-ARS":"PRM"};
+function dkChannel(p, okey) {
+  if (okey in DK_OVERRIDES) return DK_OVERRIDES[okey];
   return p.weekday === "Sat" && p.hour + ":" + p.minute === "12:30" ? "PRM" : "VIA";
 }
 
@@ -310,7 +313,7 @@ function render() {
       '<span class="teams"><span class="tn">' + esc(TEAMS[a].n) + '</span></span>' +
       '<span class="right">' +
       (live ? '<span class="live" title="Beinleiðis nú"></span>' : "") +
-      (uk ? chip(uk) : "") + chip(dkChannel(p)) +
+      (uk ? chip(uk) : "") + chip(dkChannel(p, okey)) +
       '<span class="time">' + p.hour + ":" + p.minute + "</span></span>";
     card.appendChild(row);
   }
